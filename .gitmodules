@@ -1,0 +1,7 @@
+[submodule "lib/wiringPi"]
+	path = lib/wiringPi
+	url = https://github.com/WiringPi/WiringPi
+
+[submodule "lib/httplib"]
+	path = lib/httplib
+	url = https://github.com/yhirose/cpp-httplib

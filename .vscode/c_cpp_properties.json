@@ -1,0 +1,15 @@
+{
+    "configurations": [
+        {
+            "name": "windows",
+            "includePath": [
+                "${workspaceFolder}/lib/wiringPi/wiringPi",
+                "${workspaceFolder}/lib/httplib"
+            ],
+            "intelliSenseMode": "windows-msvc-x64",
+            "cStandard": "c23",
+            "cppStandard": "gnu++23"
+        }
+    ],
+    "version": 4
+}
