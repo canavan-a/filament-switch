@@ -24,8 +24,6 @@ namespace Time
 
 }
 
-constexpr int DEBOUNCE_THRESHOLD_MS = 2000;
-
 struct SimpleLogger
 {
     bool show{};
