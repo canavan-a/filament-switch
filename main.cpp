@@ -136,7 +136,7 @@ struct EventLoop
 auto main(int argc, char *argv[]) -> int
 {
 
-    bool mock{argc > 1 && std::string(argv[1]) == "test"};
+    bool mock{argc > 1 && std::string(argv[1]) == "mock"};
 
     auto el = std::make_unique<EventLoop>(mock);
 
