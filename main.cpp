@@ -5,6 +5,8 @@
 #include <iostream>
 #include <memory>
 
+#define nl "\n"
+
 template <typename T>
 using Result = std::expected<T, std::string>;
 
@@ -29,9 +31,18 @@ struct EventLoop
 
     void run()
     {
+        if (mock)
+        {
+            std::cout << "starting loop" << nl;
+        }
+
         while (true)
         {
+
             auto newState{this->readPin()};
+            if (mock)
+                std::cout << "new state is: " << static_cast<int>(newState) << nl;
+
             if (currentState == State::OPEN && newState == State::CLOSED)
             {
                 if (mock)
