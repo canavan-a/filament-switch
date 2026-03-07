@@ -45,8 +45,8 @@ struct EventLoop
         {
 
             auto newState{this->readPin()};
-            // if (mock)
-            // std::cout << "new state is: " << static_cast<int>(newState) << nl;
+            if (mock)
+                std::cout << "new state is: " << static_cast<int>(newState) << nl;
 
             if (currentState == State::OPEN && newState == State::CLOSED)
             {
