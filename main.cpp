@@ -38,6 +38,7 @@ struct EventLoop
     State currentState{State::CLOSED};
     Time::Timestamp debounceStamp;
     bool mock{false};
+    int commandCounter{};
 
     EventLoop(bool mockRun = true) : pin{SWITCH_PIN}, mock{mockRun}, debounceStamp{Time::now()}
     {
@@ -63,8 +64,11 @@ struct EventLoop
 
             if (currentState == State::OPEN && newState == State::CLOSED && this->debounceReady())
             {
+
                 if (mock)
-                    std::cout << "send pause command!" << std::endl;
+                {
+                    std::cout << "send pause command: " << ++commandCounter << std::endl;
+                }
                 else
                     this->sendPauseCommand();
 
