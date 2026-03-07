@@ -26,6 +26,23 @@ namespace Time
 
 constexpr int DEBOUNCE_THRESHOLD_MS = 2000;
 
+struct SimpleLogger
+{
+    bool show{};
+
+    SimpleLogger(bool showLoggerOutput) : show{showLoggerOutput}
+    {
+    }
+
+    template <typename T>
+    SimpleLogger &operator<<(const T &val)
+    {
+        if (show)
+            std::cout << val;
+        return *this;
+    }
+};
+
 struct EventLoop
 {
 
@@ -41,11 +58,11 @@ struct EventLoop
     Time::Timestamp debounceStamp;
     bool mock{false};
     int commandCounter{};
+    SimpleLogger log;
 
-    EventLoop(bool mockRun = true) : pin{SWITCH_PIN}, mock{mockRun}, debounceStamp{Time::now()}
+    EventLoop(bool mockRun = true) : pin{SWITCH_PIN}, mock{mockRun}, debounceStamp{Time::now()}, log{mockRun}
     {
-        if (mock)
-            std::cout << "pin is: " << pin << nl;
+        log << "pin is: " << pin << nl;
 
         wiringPiSetup();
         pinMode(pin, INPUT);
@@ -54,10 +71,8 @@ struct EventLoop
 
     void run()
     {
-        if (mock)
-        {
-            std::cout << "starting loop" << nl;
-        }
+
+        log << "starting loop" << nl;
 
         while (true)
         {
@@ -69,7 +84,7 @@ struct EventLoop
 
                 if (mock)
                 {
-                    std::cout << "send pause command: " << ++commandCounter << std::endl;
+                    log << "send pause command: " << ++commandCounter << nl;
                 }
                 else
                     this->sendPauseCommand();
@@ -107,11 +122,13 @@ struct EventLoop
     bool debounceReady()
     {
         auto now = Time::now();
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - this->debounceStamp).count();
-        return elapsed > msThreshold;
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - debounceStamp).count();
+        log << "elapsed time: " << elapsed << nl;
+        return elapsed >= msThreshold;
     }
     void debounceReset()
     {
+        log << "debouce resetting" << nl;
         this->debounceStamp = Time::now();
     }
 };
