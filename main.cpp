@@ -4,6 +4,7 @@
 #include <expected>
 #include <iostream>
 #include <memory>
+#include <chrono>
 
 #define nl "\n"
 
@@ -11,6 +12,17 @@ template <typename T>
 using Result = std::expected<T, std::string>;
 
 using Err = std::unexpected<std::string>;
+
+namespace Time
+{
+    using Timestamp = std::chrono::_V2::steady_clock::time_point;
+
+    Timestamp now()
+    {
+        return std::chrono::steady_clock::now();
+    }
+
+}
 
 struct EventLoop
 {
@@ -20,11 +32,14 @@ struct EventLoop
         OPEN,
         CLOSED
     };
-    int pin{SWITCH_PIN};
+
+    const int msThreshold{400};
+    const int pin{SWITCH_PIN};
     State currentState{State::CLOSED};
+    Time::Timestamp debounceStamp;
     bool mock{false};
 
-    EventLoop(bool mockRun = true) : pin{SWITCH_PIN}, mock{mockRun}
+    EventLoop(bool mockRun = true) : pin{SWITCH_PIN}, mock{mockRun}, debounceStamp{Time::now()}
     {
         if (mock)
             std::cout << "pin is: " << pin << nl;
@@ -46,12 +61,14 @@ struct EventLoop
 
             auto newState{this->readPin()};
 
-            if (currentState == State::OPEN && newState == State::CLOSED)
+            if (currentState == State::OPEN && newState == State::CLOSED && this->debounceReady())
             {
                 if (mock)
                     std::cout << "send pause command!" << std::endl;
                 else
                     this->sendPauseCommand();
+
+                debounceReset();
             }
             currentState = newState;
         }
@@ -79,6 +96,17 @@ struct EventLoop
         }
 
         return {};
+    }
+
+    bool debounceReady()
+    {
+        auto now = Time::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - this->debounceStamp).count();
+        return elapsed > msThreshold;
+    }
+    void debounceReset()
+    {
+        this->debounceStamp = Time::now();
     }
 };
 
