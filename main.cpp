@@ -31,7 +31,7 @@ struct EventLoop
 
         wiringPiSetup();
         pinMode(pin, INPUT);
-        pullUpDnControl(pin, PUD_UP);
+        pullUpDnControl(pin, PUD_DOWN);
     }
 
     void run()
@@ -45,8 +45,6 @@ struct EventLoop
         {
 
             auto newState{this->readPin()};
-            if (mock)
-                std::cout << "new state is: " << static_cast<int>(newState) << nl;
 
             if (currentState == State::OPEN && newState == State::CLOSED)
             {
