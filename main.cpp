@@ -26,7 +26,9 @@ struct EventLoop
 
     EventLoop(bool mockRun = true) : pin{SWITCH_PIN}, mock{mockRun}
     {
+        wiringPiSetup();
         pinMode(pin, INPUT);
+        pullUpDnControl(pin, PUD_UP);
     }
 
     void run()
@@ -81,7 +83,6 @@ struct EventLoop
 
 auto main(int argc, char *argv[]) -> int
 {
-    wiringPiSetup();
 
     bool mock{argc > 1 && std::string(argv[1]) == "test"};
 
