@@ -18,12 +18,11 @@ struct EventLoop
         OPEN,
         CLOSED
     };
-
     int pin{SWITCH_PIN};
-
     State currentState{State::CLOSED};
+    bool mock{false};
 
-    EventLoop() : pin{SWITCH_PIN}
+    EventLoop(bool mockRun = true) : pin{SWITCH_PIN}, mock{mockRun}
     {
         pinMode(pin, INPUT);
     }
@@ -35,7 +34,10 @@ struct EventLoop
             auto newState{this->readPin()};
             if (currentState == State::OPEN && newState == State::CLOSED)
             {
-                this->sendPauseCommand();
+                if (mock)
+                    std::cout << "send pause command!" << std::endl;
+                else
+                    this->sendPauseCommand();
             }
             currentState = newState;
         }
@@ -66,9 +68,12 @@ struct EventLoop
     }
 };
 
-auto main() -> int
+auto main(int argc, char *argv[]) -> int
 {
-    auto el = std::make_unique<EventLoop>();
+
+    bool mock{argc >= 1 && std::string(argv[1]) == "test"};
+
+    auto el = std::make_unique<EventLoop>(mock);
 
     el->run();
 
