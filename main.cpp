@@ -12,24 +12,40 @@ using Err = std::unexpected<std::string>;
 
 struct EventLoop
 {
+
+    enum class State
+    {
+        OPEN,
+        CLOSED
+    };
+
     int pin{SWITCH_PIN};
 
-    void
-    run()
+    State currentState{State::CLOSED};
+
+    EventLoop() : pin{SWITCH_PIN}
+    {
+        pinMode(pin, INPUT);
+    }
+
+    void run()
     {
         while (true)
         {
+            auto newState{this->readPin()};
+            if (currentState == State::OPEN && newState == State::CLOSED)
+            {
+                this->sendPauseCommand();
+            }
+            currentState = newState;
         }
     }
 
-    // POST /api/printer/command HTTP/1.1
-    // Host: example.com
-    // Content-Type: application/json
-    // X-Api-Key: abcdef...
+    State readPin()
+    {
+        return static_cast<State>(digitalRead(pin));
+    }
 
-    // {
-    // "command": "M106"
-    // }
     Result<void> sendPauseCommand()
     {
         httplib::Client cli(OCTOPRINT_ENDPOINT);
@@ -52,9 +68,9 @@ struct EventLoop
 
 auto main() -> int
 {
-    auto ptr = std::make_unique<EventLoop>();
+    auto el = std::make_unique<EventLoop>();
 
-    ptr->run();
+    el->run();
 
     return 0;
 }
