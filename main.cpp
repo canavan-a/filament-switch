@@ -24,6 +24,8 @@ namespace Time
 
 }
 
+constexpr int DEBOUNCE_THRESHOLD_MS = 2000;
+
 struct EventLoop
 {
 
@@ -33,7 +35,7 @@ struct EventLoop
         CLOSED
     };
 
-    const int msThreshold{400};
+    const int msThreshold{DEBOUNCE_THRESHOLD_MS};
     const int pin{SWITCH_PIN};
     State currentState{State::CLOSED};
     Time::Timestamp debounceStamp;
