@@ -26,6 +26,9 @@ struct EventLoop
 
     EventLoop(bool mockRun = true) : pin{SWITCH_PIN}, mock{mockRun}
     {
+        if (mock)
+            std::cout << "pin is: " << pin << nl;
+
         wiringPiSetup();
         pinMode(pin, INPUT);
         pullUpDnControl(pin, PUD_UP);
@@ -42,8 +45,8 @@ struct EventLoop
         {
 
             auto newState{this->readPin()};
-            if (mock)
-                std::cout << "new state is: " << static_cast<int>(newState) << nl;
+            // if (mock)
+            // std::cout << "new state is: " << static_cast<int>(newState) << nl;
 
             if (currentState == State::OPEN && newState == State::CLOSED)
             {
