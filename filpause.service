@@ -1,0 +1,9 @@
+[Unit]
+Description=Filament Pause System
+
+[System]
+ExecStart=/usr/local/bin/filpause
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
