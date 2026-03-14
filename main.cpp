@@ -44,6 +44,7 @@ struct SimpleLogger
 struct EventLoop
 {
 
+    int pressCount{};
     enum class State
     {
         OPEN,
@@ -58,7 +59,7 @@ struct EventLoop
     int commandCounter{};
     SimpleLogger log;
 
-    EventLoop(bool mockRun = true) : pin{SWITCH_PIN}, mock{mockRun}, debounceStamp{Time::now()}, log{mockRun}
+    EventLoop(bool logRun, bool mockRun) : pin{SWITCH_PIN}, mock{mockRun}, debounceStamp{Time::now()}, log{logRun}
     {
         log << "pin is: " << pin << nl;
 
@@ -85,7 +86,17 @@ struct EventLoop
                     log << "send pause command: " << ++commandCounter << nl;
                 }
                 else
-                    this->sendPauseCommand();
+                {
+                    auto res = this->sendPauseCommand();
+                    if (!res)
+                    {
+                        log << res.error() << nl;
+                    }
+                    else
+                    {
+                        log << "successfully paused: " << ++pressCount << nl;
+                    }
+                }
 
                 debounceReset();
             }
@@ -148,9 +159,18 @@ struct EventLoop
 auto main(int argc, char *argv[]) -> int
 {
 
+    bool log{};
     bool mock{argc > 1 && std::string(argv[1]) == "mock"};
+    if (mock)
+    {
+        log = true;
+    }
+    else if (argc > 1 && std::string(argv[1]) == "log")
+    {
+        log = true;
+    }
 
-    auto el = std::make_unique<EventLoop>(mock);
+    auto el = std::make_unique<EventLoop>(log, mock);
 
     el->run();
 
