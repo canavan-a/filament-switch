@@ -100,18 +100,32 @@ struct EventLoop
 
     Result<void> sendPauseCommand()
     {
-        httplib::Client cli(OCTOPRINT_ENDPOINT);
-
-        httplib::Headers headers = {
-            {"X-Api-Key", OCTOPRINT_API_KEY}};
-
-        std::string command{"{\"command\":\"M0\" }"};
-
-        auto res = cli.Post("/api/printer/command", headers, command, "application/json");
-
-        if (res->status >= 400)
+        try
         {
-            return Err{res->body};
+            httplib::Client cli(OCTOPRINT_ENDPOINT);
+
+            httplib::Headers headers = {
+                {"X-Api-Key", OCTOPRINT_API_KEY}};
+
+            std::string command{"{\"command\":\"M0\" }"};
+
+            auto res = cli.Post("/api/printer/command", headers, command, "application/json");
+
+            if (!res)
+                return Err{"connection failed"};
+
+            if (res->status >= 400)
+            {
+                return Err{res->body};
+            }
+        }
+        catch (const std::exception &e)
+        {
+            return Err{e.what()};
+        }
+        catch (...)
+        {
+            return Err{"generic error"};
         }
 
         return {};
