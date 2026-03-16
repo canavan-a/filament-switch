@@ -52,7 +52,7 @@ struct EventLoop
     };
 
     const int msThreshold{DEBOUNCE_THRESHOLD_MS};
-    const int unpauseThreshold{600};
+    const int unpauseThreshold{2000};
     const int pin{SWITCH_PIN};
     State currentState{State::OPEN};
     Time::Timestamp debounceStamp;
@@ -83,9 +83,9 @@ struct EventLoop
         {
 
             auto newState{this->readPin()};
-            log << static_cast<int>(newState) << nl;
+            // log << static_cast<int>(newState) << nl;
 
-            if (currentState == State::CLOSED && newState == State::OPEN && this->debounceReady())
+            if (currentState == State::OPEN && newState == State::CLOSED && this->debounceReady())
             {
 
                 if (mock)
