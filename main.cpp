@@ -60,6 +60,9 @@ struct EventLoop
     int commandCounter{};
     SimpleLogger log;
 
+    const std::string PAUSE{"M0"};
+    const std::string UNPAUSE{"M24"};
+
     Time::Timestamp lastCommand;
 
     EventLoop(bool logRun, bool mockRun) : pin{SWITCH_PIN}, mock{mockRun}, debounceStamp{Time::now()}, log{logRun}, lastCommand{Time::now()}
@@ -91,10 +94,10 @@ struct EventLoop
                 else
                 {
 
-                    std::string command{"M0"};
+                    std::string_view command{PAUSE};
                     if (this->unpauseReady())
                     {
-                        command = "M24";
+                        command = UNPAUSE;
                     }
                     auto res = this->sendCommand(command);
                     if (!res)
@@ -120,7 +123,7 @@ struct EventLoop
 
     // M24
 
-    Result<void> sendCommand(std::string_view command)
+    Result<void> sendCommand(const std::string_view command)
     {
         this->lastCommand = Time::now();
 
