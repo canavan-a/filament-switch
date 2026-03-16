@@ -118,7 +118,7 @@ struct EventLoop
             httplib::Headers headers = {
                 {"X-Api-Key", OCTOPRINT_API_KEY}};
 
-            std::string command{"{\"command\":\"M25\" }"};
+            std::string command{"{\"command\":\"M125\" }"};
 
             auto res = cli.Post("/api/printer/command", headers, command, "application/json");
 
