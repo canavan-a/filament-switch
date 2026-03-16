@@ -52,6 +52,7 @@ struct EventLoop
     };
 
     const int msThreshold{DEBOUNCE_THRESHOLD_MS};
+    const int unpauseThreshold{600};
     const int pin{SWITCH_PIN};
     State currentState{State::CLOSED};
     Time::Timestamp debounceStamp;
@@ -59,7 +60,9 @@ struct EventLoop
     int commandCounter{};
     SimpleLogger log;
 
-    EventLoop(bool logRun, bool mockRun) : pin{SWITCH_PIN}, mock{mockRun}, debounceStamp{Time::now()}, log{logRun}
+    Time::Timestamp lastCommand;
+
+    EventLoop(bool logRun, bool mockRun) : pin{SWITCH_PIN}, mock{mockRun}, debounceStamp{Time::now()}, log{logRun}, lastCommand{Time::now()}
     {
         log << "pin is: " << pin << nl;
 
@@ -87,7 +90,13 @@ struct EventLoop
                 }
                 else
                 {
-                    auto res = this->sendPauseCommand();
+
+                    std::string command{"M0"};
+                    if (this->unpauseReady())
+                    {
+                        command = "M24";
+                    }
+                    auto res = this->sendCommand(command);
                     if (!res)
                     {
                         log << res.error() << nl;
@@ -109,8 +118,12 @@ struct EventLoop
         return static_cast<State>(digitalRead(pin));
     }
 
-    Result<void> sendPauseCommand()
+    // M24
+
+    Result<void> sendCommand(std::string_view command)
     {
+        this->lastCommand = Time::now();
+
         try
         {
             httplib::Client cli(OCTOPRINT_ENDPOINT);
@@ -118,7 +131,7 @@ struct EventLoop
             httplib::Headers headers = {
                 {"X-Api-Key", OCTOPRINT_API_KEY}};
 
-            std::string command{"{\"command\":\"M0\" }"};
+            std::string command{"{\"command\":\"" + command + "\" }"};
 
             auto res = cli.Post("/api/printer/command", headers, command, "application/json");
 
@@ -148,6 +161,14 @@ struct EventLoop
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - debounceStamp).count();
         log << "elapsed time: " << elapsed << nl;
         return elapsed >= msThreshold;
+    }
+
+    bool unpauseReady()
+    {
+        auto now = Time::now();
+        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastCommand).count();
+        log << "elapsed time (unpause): " << elapsed << nl;
+        return elapsed <= unpauseThreshold;
     }
     void debounceReset()
     {
