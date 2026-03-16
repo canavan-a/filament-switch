@@ -97,8 +97,10 @@ struct EventLoop
                     std::string_view command{PAUSE};
                     if (this->unpauseReady())
                     {
+                        log << "unpause is ready" << nl;
                         command = UNPAUSE;
                     }
+
                     auto res = this->sendCommand(command);
                     if (!res)
                     {
@@ -126,6 +128,8 @@ struct EventLoop
     Result<void> sendCommand(const std::string_view command)
     {
         this->lastCommand = Time::now();
+
+        log << "command sent is" << command << nl;
 
         try
         {
