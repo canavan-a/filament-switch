@@ -83,7 +83,7 @@ struct EventLoop
         {
 
             auto newState{this->readPin()};
-            log << newState << nl;
+            log << static_cast<int>(newState) << nl;
 
             if (currentState == State::CLOSED && newState == State::OPEN && this->debounceReady())
             {
