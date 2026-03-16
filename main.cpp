@@ -54,7 +54,7 @@ struct EventLoop
     const int msThreshold{DEBOUNCE_THRESHOLD_MS};
     const int unpauseThreshold{600};
     const int pin{SWITCH_PIN};
-    State currentState{State::CLOSED};
+    State currentState{State::OPEN};
     Time::Timestamp debounceStamp;
     bool mock{false};
     int commandCounter{};
@@ -84,7 +84,7 @@ struct EventLoop
 
             auto newState{this->readPin()};
 
-            if (currentState == State::OPEN && newState == State::CLOSED && this->debounceReady())
+            if (currentState == State::CLOSED && newState == State::OPEN && this->debounceReady())
             {
 
                 if (mock)
@@ -129,7 +129,7 @@ struct EventLoop
     {
         this->lastCommand = Time::now();
 
-        log << "command sent is" << command << nl;
+        log << "command sent is: " << command << nl;
 
         try
         {
@@ -175,7 +175,7 @@ struct EventLoop
         auto now = Time::now();
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - lastCommand).count();
         log << "elapsed time (unpause): " << elapsed << nl;
-        return elapsed <= unpauseThreshold;
+        return elapsed < unpauseThreshold;
     }
     void debounceReset()
     {
