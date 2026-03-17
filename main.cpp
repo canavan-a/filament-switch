@@ -60,8 +60,8 @@ struct EventLoop
     int commandCounter{};
     SimpleLogger log;
 
-    const std::string PAUSE{"M0"};
-    const std::string UNPAUSE{"M24"};
+    const std::string PAUSE{"pause"};
+    const std::string UNPAUSE{"resume"};
 
     Time::Timestamp lastCommand;
 
@@ -139,9 +139,9 @@ struct EventLoop
             httplib::Headers headers = {
                 {"X-Api-Key", OCTOPRINT_API_KEY}};
 
-            std::string command{"{\"command\":\"" + command + "\" }"};
+            std::string body{"{\"command\":\"pause\",\"action\":\"" + std::string(command) + "\"}"};
 
-            auto res = cli.Post("/api/printer/command", headers, command, "application/json");
+            auto res = cli.Post("/api/job", headers, body, "application/json");
 
             if (!res)
                 return Err{"connection failed"};
