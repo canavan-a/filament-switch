@@ -1,7 +1,7 @@
 [Unit]
 Description=Filament Pause System
 
-[System]
+[Service]
 ExecStart=/usr/local/bin/filpause
 Restart=always
 
